@@ -12,9 +12,9 @@ export default async function NewBillPage({
   const supabase = await createClient();
 
   const { data: customers } = await supabase
-    .from("customers")
-    .select("id, full_name")
-    .order("full_name");
+  .from("customers")
+  .select("id, full_name, customer_number")
+  .order("full_name");
 
   const { data: packages } = await supabase
     .from("packages")

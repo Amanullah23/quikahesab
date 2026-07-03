@@ -11,21 +11,22 @@ export default function CustomerSearch() {
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (value) {
-        params.set("q", value);
-      } else {
-        params.delete("q");
-      }
-      startTransition(() => {
-        router.replace(`/customers?${params.toString()}`);
-      });
-    }, 300);
+  const timer = setTimeout(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set("q", value);
+    } else {
+      params.delete("q");
+    }
+    params.delete("page"); // reset to page 1 whenever the search term changes
+    startTransition(() => {
+      router.replace(`/customers?${params.toString()}`);
+    });
+  }, 300);
 
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [value]);
 
   return (
     <div className="flex items-center gap-2 bg-card border border-border rounded-full px-4 py-2.5 max-w-xs">

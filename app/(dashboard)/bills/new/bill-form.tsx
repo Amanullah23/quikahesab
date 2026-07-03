@@ -1,7 +1,7 @@
 "use client";
-
 import { useState } from "react";
 import { createBill } from "../actions";
+import CustomerPicker from "./customer-picker";
 
 type Customer = { id: string; full_name: string };
 type Package = { id: string; name: string; cycle_type: string; amount: number };
@@ -45,14 +45,9 @@ export default function BillForm({
       </div>
 
       <div>
-        <label className={labelClass}>Customer</label>
-        <select name="customer_id" required className={inputClass}>
-          <option value="">Select customer...</option>
-          {customers.map((c) => (
-            <option key={c.id} value={c.id}>{c.full_name}</option>
-          ))}
-        </select>
-      </div>
+  <label className={labelClass}>Customer</label>
+  <CustomerPicker customers={customers} />
+</div>
 
       <div>
         <label className={labelClass}>Package</label>
