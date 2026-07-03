@@ -9,7 +9,9 @@ export default async function SettingsPage({
   const { error, success } = await searchParams;
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { data: profile } = await supabase
     .from("profiles")
     .select("full_name, role")
@@ -28,7 +30,9 @@ export default async function SettingsPage({
 
   return (
     <div>
-      <h1 className="font-display text-3xl font-bold text-text mb-1">Settings</h1>
+      <h1 className="font-display text-3xl font-bold text-text mb-1">
+        Settings
+      </h1>
       <p className="text-text-muted mb-8">
         Signed in as {profile?.full_name} ({profile?.role})
       </p>
@@ -44,10 +48,12 @@ export default async function SettingsPage({
         </p>
       )}
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Change own password */}
         <div className="bg-card border border-border rounded-3xl p-6">
-          <h2 className="font-display text-lg font-bold text-text mb-4">Change Password</h2>
+          <h2 className="font-display text-lg font-bold text-text mb-4">
+            Change Password
+          </h2>
           <form action={updatePassword} className="space-y-4">
             <div>
               <label className={labelClass}>New Password</label>
@@ -71,19 +77,37 @@ export default async function SettingsPage({
         {/* Admin: create staff account */}
         {isAdmin && (
           <div className="bg-card border border-border rounded-3xl p-6">
-            <h2 className="font-display text-lg font-bold text-text mb-4">Add Staff Account</h2>
+            <h2 className="font-display text-lg font-bold text-text mb-4">
+              Add Staff Account
+            </h2>
             <form action={createStaffUser} className="space-y-4">
               <div>
                 <label className={labelClass}>Full Name</label>
-                <input type="text" name="full_name" required className={inputClass} />
+                <input
+                  type="text"
+                  name="full_name"
+                  required
+                  className={inputClass}
+                />
               </div>
               <div>
                 <label className={labelClass}>Email</label>
-                <input type="email" name="email" required className={inputClass} />
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  className={inputClass}
+                />
               </div>
               <div>
                 <label className={labelClass}>Password</label>
-                <input type="password" name="password" required minLength={8} className={inputClass} />
+                <input
+                  type="password"
+                  name="password"
+                  required
+                  minLength={8}
+                  className={inputClass}
+                />
               </div>
               <div>
                 <label className={labelClass}>Role</label>
@@ -111,20 +135,27 @@ export default async function SettingsPage({
           <h2 className="font-display text-lg font-bold text-text px-6 py-4 border-b border-border">
             All Staff
           </h2>
-          <table className="w-full text-sm">
-            <tbody>
-              {staff.map((s: any, i: number) => (
-                <tr key={i} className="border-t border-border first:border-t-0">
-                  <td className="px-6 py-3 text-text font-medium">{s.full_name}</td>
-                  <td className="px-6 py-3">
-                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-bg text-text-muted capitalize">
-                      {s.role}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-75">
+              <tbody>
+                {staff.map((s: any, i: number) => (
+                  <tr
+                    key={i}
+                    className="border-t border-border first:border-t-0"
+                  >
+                    <td className="px-6 py-3 text-text font-medium">
+                      {s.full_name}
+                    </td>
+                    <td className="px-6 py-3">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-bg text-text-muted capitalize">
+                        {s.role}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

@@ -75,7 +75,7 @@ export default function HelpPage() {
       <h1 className="font-display text-3xl font-bold text-text mb-1">Help</h1>
       <p className="text-text-muted mb-8">Quick guides for everyday tasks in QuikaHesab</p>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {guides.map((g) => {
           const Icon = g.icon;
           return (
