@@ -144,7 +144,7 @@ export default async function BillsPage({
       </form>
 
       {/* Status tabs */}
-      <div className="flex gap-2  overflow-x-auto pb-3 -mb-1">
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-3 -mb-1">
         {tabs.map((tab) => (
           <Link
             key={tab.value}
@@ -163,40 +163,40 @@ export default async function BillsPage({
       {/* Table */}
       <div className="bg-card border border-border rounded-3xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-160">
+          <table className="w-full text-sm min-w-[640px] table-fixed">
             <thead className="bg-bg">
               <tr>
-                <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
+                <th className="w-[15%] text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
                   <Link
                     href={sortHref("bill_number")}
-                    className="flex items-center gap-1.5 hover:text-text transition"
+                    className="inline-flex items-center gap-1.5 hover:text-text transition"
                   >
                     Bill # <SortIcon column="bill_number" />
                   </Link>
                 </th>
-                <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
+                <th className="w-[25%] text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
                   Customer
                 </th>
-                <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
+                <th className="w-[20%] text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
                   <Link
                     href={sortHref("month")}
-                    className="flex items-center gap-1.5 hover:text-text transition"
+                    className="inline-flex items-center gap-1.5 hover:text-text transition"
                   >
                     Month <SortIcon column="month" />
                   </Link>
                 </th>
-                <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
+                <th className="w-[20%] text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
                   <Link
                     href={sortHref("amount")}
-                    className="flex items-center gap-1.5 hover:text-text transition"
+                    className="inline-flex items-center gap-1.5 hover:text-text transition"
                   >
                     Amount <SortIcon column="amount" />
                   </Link>
                 </th>
-                <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
+                <th className="w-[20%] text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
                   <Link
                     href={sortHref("status")}
-                    className="flex items-center gap-1.5 hover:text-text transition"
+                    className="inline-flex items-center gap-1.5 hover:text-text transition"
                   >
                     Status <SortIcon column="status" />
                   </Link>
@@ -206,16 +206,16 @@ export default async function BillsPage({
             <tbody>
               {bills?.map((bill: any) => (
                 <BillRow key={bill.id} href={`/bills/${bill.id}`}>
-                  <td className="px-5 py-3.5 font-semibold text-forest">
+                  <td className="px-5 py-3.5 font-semibold text-forest truncate">
                     {bill.bill_number}
                   </td>
-                  <td className="px-5 py-3.5 text-text">
+                  <td className="px-5 py-3.5 text-text truncate">
                     {bill.customers?.full_name}
                   </td>
-                  <td className="px-5 py-3.5 text-text-muted">
+                  <td className="px-5 py-3.5 text-text-muted truncate">
                     {bill.month_label}
                   </td>
-                  <td className="px-5 py-3.5 text-text">
+                  <td className="px-5 py-3.5 text-text truncate">
                     {bill.amount_due} AFN
                   </td>
                   <td className="px-5 py-3.5">

@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { ArrowUpRight, Upload } from "lucide-react";
+import { ArrowUpRight, Upload, Wallet } from "lucide-react";
 import AnimatedGrid from "./animated-grid";
 
 export default async function DashboardHome() {
@@ -42,6 +42,15 @@ export default async function DashboardHome() {
     .select("*")
     .order("total_outstanding", { ascending: false })
     .limit(10);
+
+  // Total AFN billed all-time (excludes cancelled bills)
+  const { data: allBills } = await supabase
+    .from("bills")
+    .select("amount_due")
+    .neq("status", "cancelled");
+
+  const totalBilledAllTime =
+    allBills?.reduce((sum, b) => sum + Number(b.amount_due), 0) ?? 0;
 
   const cards = [
     {
@@ -95,6 +104,19 @@ export default async function DashboardHome() {
           >
             + Add Bill
           </Link>
+        </div>
+      </div>
+
+      {/* Total Billed — full width, sits ABOVE and OUTSIDE the stat-cards grid */}
+      <div className="bg-gray-500 text-white rounded-3xl p-6 mb-6 flex items-center gap-4">
+        <span className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center shrink-0">
+          <Wallet size={20} />
+        </span>
+        <div>
+          <p className="text-sm text-white/70">Total Billed (All Time)</p>
+          <p className="font-display text-3xl font-bold">
+            {totalBilledAllTime.toLocaleString()} AFN
+          </p>
         </div>
       </div>
 
