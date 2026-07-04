@@ -1,6 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Plus, Upload, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import {
+  Plus,
+  Upload,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+} from "lucide-react";
 import CustomerSearch from "./customer-search";
 import CustomerRow from "./customer-row";
 
@@ -40,7 +48,7 @@ export default async function CustomersPage({
     .from("customers")
     .select(
       "id, customer_number, full_name, whatsapp_number, whatsapp_valid, is_active, packages(name)",
-      { count: "exact" }
+      { count: "exact" },
     )
     .order(sortColumn, { ascending: sortAsc })
     .range(from, to);
@@ -85,7 +93,9 @@ export default async function CustomersPage({
     <div>
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-display text-3xl font-bold text-text">Customers</h1>
+          <h1 className="font-display text-3xl font-bold text-text">
+            Customers
+          </h1>
           <p className="text-text-muted mt-1">
             {count ?? 0} customers total — page {page} of {totalPages}
           </p>
@@ -120,27 +130,36 @@ export default async function CustomersPage({
 
       <div className="bg-card border border-border rounded-3xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[640px]">
+          <table className="w-full text-sm min-w-160 table-fixed">
             <thead className="bg-bg">
               <tr>
-                <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
-                  <Link href={sortHref("id")} className="flex items-center gap-1.5 hover:text-text transition">
+                <th className="w-[12%] text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
+                  <Link
+                    href={sortHref("id")}
+                    className="inline-flex items-center gap-1.5 hover:text-text transition"
+                  >
                     ID <SortIcon column="id" />
                   </Link>
                 </th>
-                <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
-                  <Link href={sortHref("name")} className="flex items-center gap-1.5 hover:text-text transition">
+                <th className="w-[25%] text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
+                  <Link
+                    href={sortHref("name")}
+                    className="inline-flex items-center gap-1.5 hover:text-text transition"
+                  >
                     Name <SortIcon column="name" />
                   </Link>
                 </th>
-                <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
+                <th className="w-[25%] text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
                   WhatsApp
                 </th>
-                <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
+                <th className="w-[23%] text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
                   Package
                 </th>
-                <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
-                  <Link href={sortHref("status")} className="flex items-center gap-1.5 hover:text-text transition">
+                <th className="w-[15%] text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
+                  <Link
+                    href={sortHref("status")}
+                    className="inline-flex items-center gap-1.5 hover:text-text transition"
+                  >
                     Status <SortIcon column="status" />
                   </Link>
                 </th>
@@ -149,17 +168,23 @@ export default async function CustomersPage({
             <tbody>
               {customers?.map((c: any) => (
                 <CustomerRow key={c.id} href={`/customers/${c.id}`}>
-                  <td className="px-5 py-3.5 text-text-muted font-medium">
+                  <td className="px-5 py-3.5 text-text-muted font-medium truncate">
                     {c.customer_number}
                   </td>
-                  <td className="px-5 py-3.5 font-semibold text-forest">{c.full_name}</td>
-                  <td className="px-5 py-3.5 text-text-muted">
+                  <td className="px-5 py-3.5 font-semibold text-forest truncate">
+                    {c.full_name}
+                  </td>
+                  <td className="px-5 py-3.5 text-text-muted truncate">
                     {c.whatsapp_number || "—"}
                     {c.whatsapp_number && !c.whatsapp_valid && (
-                      <span className="text-badge-red-text ml-1 text-xs">⚠️ invalid</span>
+                      <span className="text-badge-red-text ml-1 text-xs">
+                        ⚠️ invalid
+                      </span>
                     )}
                   </td>
-                  <td className="px-5 py-3.5 text-text">{c.packages?.name}</td>
+                  <td className="px-5 py-3.5 text-text truncate">
+                    {c.packages?.name}
+                  </td>
                   <td className="px-5 py-3.5">
                     <span
                       className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
@@ -178,7 +203,9 @@ export default async function CustomersPage({
         </div>
 
         {customers?.length === 0 && (
-          <p className="text-center text-text-muted py-12 text-sm">No customers found</p>
+          <p className="text-center text-text-muted py-12 text-sm">
+            No customers found
+          </p>
         )}
       </div>
 

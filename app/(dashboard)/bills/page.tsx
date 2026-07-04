@@ -144,7 +144,7 @@ export default async function BillsPage({
       </form>
 
       {/* Status tabs */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-3 -mb-1">
+      <div className="flex gap-2  overflow-x-auto pb-3 -mb-1">
         {tabs.map((tab) => (
           <Link
             key={tab.value}
@@ -163,7 +163,7 @@ export default async function BillsPage({
       {/* Table */}
       <div className="bg-card border border-border rounded-3xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[640px]">
+          <table className="w-full text-sm min-w-160">
             <thead className="bg-bg">
               <tr>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">

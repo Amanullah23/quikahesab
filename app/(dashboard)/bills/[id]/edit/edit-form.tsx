@@ -64,7 +64,7 @@ export default function EditForm({ bill, error }: { bill: Bill; error?: string }
 
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition"
+        className="w-full bg-forest cursor-pointer text-white py-2.5 rounded-lg font-medium hover:bg-forest/90 transition"
       >
         Save Changes
       </button>

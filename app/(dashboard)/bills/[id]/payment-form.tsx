@@ -32,7 +32,7 @@ export default function PaymentForm({
       </div>
       <button
         type="submit"
-        className="bg-forest text-white px-5 py-2.5 rounded-full text-sm font-medium hover:opacity-90 active:scale-95 transition duration-150"
+        className="bg-forest text-white px-5 py-2.5 rounded-full text-sm font-medium hover:opacity-90 active:scale-95 transition duration-150 cursor-pointer"
       >
         Record Payment
       </button>
