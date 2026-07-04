@@ -38,10 +38,14 @@ export default async function DashboardHome() {
     todayPayments?.reduce((sum, p) => sum + Number(p.amount), 0) ?? 0;
 
   const { data: overdue } = await supabase
-    .from("overdue_customers")
-    .select("*")
-    .order("total_outstanding", { ascending: false })
-    .limit(10);
+  .from("overdue_customers")
+  .select("*")
+  .order("total_outstanding", { ascending: false })
+  .limit(2);
+
+const { count: overdueTotalCount } = await supabase
+  .from("overdue_customers")
+  .select("id", { count: "exact", head: true });
 
   // Total AFN billed all-time (excludes cancelled bills)
   const { data: allBills } = await supabase
@@ -187,10 +191,17 @@ export default async function DashboardHome() {
         </div>
 
         <div className="bg-card border border-border rounded-3xl p-5 col-span-2">
-          <h2 className="text-sm text-text-muted mb-4">
-            Overdue Customers{" "}
-            <span className="text-text-muted/70">(2+ unpaid bills)</span>
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+  <h2 className="text-sm text-text-muted">
+    Overdue Customers{" "}
+    <span className="text-text-muted/70">(2+ unpaid bills)</span>
+  </h2>
+  {overdueTotalCount && overdueTotalCount > 2 && (
+    <Link href="/customers/overdue" className="text-xs text-forest font-medium hover:underline">
+      View all {overdueTotalCount}
+    </Link>
+  )}
+</div>
           {overdue && overdue.length > 0 ? (
             <table className="w-full text-sm">
               <thead>

@@ -39,6 +39,9 @@ export default async function DashboardLayout({
     .gte("cycle_end", todayStr)
     .lte("cycle_end", windowEndStr);
 
+  const { count: overdueCount } = await supabase
+    .from("overdue_customers")
+    .select("id", { count: "exact", head: true });
   const sidebarContent = (
     <>
       <div className="p-6">
@@ -67,9 +70,17 @@ export default async function DashboardLayout({
         <button className="hidden sm:flex w-9 h-9 rounded-full border border-border items-center justify-center text-text-muted hover:bg-bg transition">
           <Mail size={16} />
         </button>
-        <button className="hidden sm:flex w-9 h-9 rounded-full border border-border items-center justify-center text-text-muted hover:bg-bg transition">
+        <Link
+          href="/customers/overdue"
+          className="flex relative w-9 h-9 rounded-full border border-border items-center justify-center text-text-muted hover:bg-bg transition shrink-0"
+        >
           <Bell size={16} />
-        </button>
+          {overdueCount && overdueCount > 0 ? (
+            <span className="absolute -top-1 -right-1 text-[10px] font-bold bg-badge-red-bg text-badge-red-text w-4 h-4 rounded-full flex items-center justify-center">
+              {overdueCount}
+            </span>
+          ) : null}
+        </Link>
 
         <div className="flex items-center gap-2.5 pl-1">
           <div className="w-9 h-9 rounded-full bg-forest text-white flex items-center justify-center text-sm font-semibold shrink-0">
