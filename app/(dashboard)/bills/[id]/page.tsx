@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import PaymentForm from "./payment-form";
 import CancelForm from "./cancel-form";
 import WhatsAppButton from "./whatsapp-button";
+import { formatKabulTime } from "@/lib/format-date";
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-bg text-text-muted",
@@ -236,8 +237,8 @@ Thank you — QuikaHesab`;
                     {p.amount} AFN
                   </td>
                   <td className="px-6 py-3 text-text-muted">
-                    {new Date(p.paid_at).toLocaleString()}
-                  </td>
+  {formatKabulTime(p.paid_at)}
+</td>
                   <td className="px-6 py-3 text-text-muted">
                     {p.profiles?.full_name}
                   </td>
