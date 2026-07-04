@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createStaffUser, updatePassword } from "./actions";
+import BackupForm from "./backup-form";
 
 export default async function SettingsPage({
   searchParams,
@@ -128,6 +129,12 @@ export default async function SettingsPage({
           </div>
         )}
       </div>
+      {isAdmin && (
+        <div className="bg-card border border-border rounded-3xl p-6 mt-6">
+          <h2 className="font-display text-lg font-bold text-text mb-4">Backup & Restore</h2>
+          <BackupForm />
+        </div>
+      )}
 
       {/* Admin: staff list */}
       {isAdmin && staff && (
