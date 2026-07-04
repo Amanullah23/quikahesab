@@ -82,6 +82,7 @@ export async function updateCustomer(formData: FormData): Promise<void> {
     redirect(`/customers/${customer_id}/edit?error=${encodeURIComponent(error.message)}`);
   }
 
-  revalidatePath("/customers");
-  redirect("/customers?success=Customer updated");
+revalidatePath("/customers");
+revalidatePath(`/customers/${customer_id}`);
+redirect(`/customers/${customer_id}?success=Customer updated`);
 }

@@ -86,7 +86,7 @@ export default async function CustomersPage({
                   ID
                 </th>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
-                  Name
+                  Full Name
                 </th>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
                   WhatsApp
@@ -101,7 +101,7 @@ export default async function CustomersPage({
             </thead>
             <tbody>
               {customers?.map((c: any) => (
-                <CustomerRow key={c.id} href={`/customers/${c.id}/edit`}>
+                <CustomerRow key={c.id} href={`/customers/${c.id}`}>
                   <td className="px-5 py-3.5 text-text-muted font-medium">
                     {c.customer_number}
                   </td>

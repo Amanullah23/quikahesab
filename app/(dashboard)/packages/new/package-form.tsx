@@ -14,11 +14,14 @@ export default function PackageForm({
     name?: string;
     cycle_type?: string;
     data_gb?: number | null;
+    validity_days?: number | null;
     amount?: number;
     is_active?: boolean;
   };
 }) {
-  const [cycleType, setCycleType] = useState(defaultValues?.cycle_type ?? "monthly");
+  const [cycleType, setCycleType] = useState(
+    defaultValues?.cycle_type ?? "monthly",
+  );
   const isEdit = !!defaultValues?.id;
 
   const inputClass =
@@ -26,9 +29,20 @@ export default function PackageForm({
   const labelClass = "block text-sm font-medium text-text mb-1.5";
 
   return (
-    <form action={action} className="bg-card border border-border rounded-3xl p-6 max-w-lg space-y-4">
-      {isEdit && <input type="hidden" name="package_id" value={defaultValues!.id} />}
-      {isEdit && <input type="hidden" name="cycle_type" value={defaultValues!.cycle_type} />}
+    <form
+      action={action}
+      className="bg-card border border-border rounded-3xl p-6 max-w-lg space-y-4"
+    >
+      {isEdit && (
+        <input type="hidden" name="package_id" value={defaultValues!.id} />
+      )}
+      {isEdit && (
+        <input
+          type="hidden"
+          name="cycle_type"
+          value={defaultValues!.cycle_type}
+        />
+      )}
 
       {error && (
         <p className="text-sm text-badge-red-text bg-badge-red-bg rounded-xl px-4 py-2.5">
@@ -52,7 +66,8 @@ export default function PackageForm({
         <label className={labelClass}>Type</label>
         {isEdit ? (
           <p className="px-4 py-2.5 bg-bg rounded-xl text-sm text-text-muted capitalize">
-            {defaultValues!.cycle_type!.replace("_", " ")} (cannot be changed after creation)
+            {defaultValues!.cycle_type!.replace("_", " ")} (cannot be changed
+            after creation)
           </p>
         ) : (
           <select
@@ -79,6 +94,23 @@ export default function PackageForm({
             required
             className={inputClass}
           />
+        </div>
+      )}
+
+      {cycleType === "data_based" && (
+        <div>
+          <label className={labelClass}>Validity (days)</label>
+          <input
+            type="number"
+            name="validity_days"
+            defaultValue={defaultValues?.validity_days ?? ""}
+            placeholder="e.g. 10, 20, 30"
+            className={inputClass}
+          />
+          <p className="text-xs text-text-muted mt-1.5">
+            Optional — how many days this package is valid for. Editable
+            anytime.
+          </p>
         </div>
       )}
 

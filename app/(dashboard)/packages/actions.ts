@@ -23,12 +23,15 @@ export async function createPackage(formData: FormData): Promise<void> {
     redirect(`/packages/new?error=${encodeURIComponent("Enter data amount (GB) for data-based packages")}`);
   }
 
-  const { error } = await supabase.from("packages").insert({
-    name,
-    cycle_type,
-    amount,
-    data_gb: cycle_type === "data_based" ? Number(data_gb) : null,
-  });
+const validity_days = formData.get("validity_days") as string;
+
+const { error } = await supabase.from("packages").insert({
+  name,
+  cycle_type,
+  amount,
+  data_gb: cycle_type === "data_based" ? Number(data_gb) : null,
+  validity_days: cycle_type === "data_based" && validity_days ? Number(validity_days) : null,
+});
 
   if (error) {
     redirect(`/packages/new?error=${encodeURIComponent(error.message)}`);
@@ -55,15 +58,18 @@ export async function updatePackage(formData: FormData): Promise<void> {
     redirect(`/packages/${package_id}/edit?error=${encodeURIComponent("Enter a valid name and amount")}`);
   }
 
-  const { error } = await supabase
-    .from("packages")
-    .update({
-      name,
-      amount,
-      data_gb: cycle_type === "data_based" ? Number(data_gb) : null,
-      is_active,
-    })
-    .eq("id", package_id);
+ const validity_days = formData.get("validity_days") as string;
+
+const { error } = await supabase
+  .from("packages")
+  .update({
+    name,
+    amount,
+    data_gb: cycle_type === "data_based" ? Number(data_gb) : null,
+    validity_days: cycle_type === "data_based" && validity_days ? Number(validity_days) : null,
+    is_active,
+  })
+  .eq("id", package_id);
 
   if (error) {
     redirect(`/packages/${package_id}/edit?error=${encodeURIComponent(error.message)}`);
@@ -71,4 +77,35 @@ export async function updatePackage(formData: FormData): Promise<void> {
 
   revalidatePath("/packages");
   redirect("/packages?success=Package updated");
+}
+export async function deletePackage(formData: FormData): Promise<void> {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const package_id = formData.get("package_id") as string;
+
+  // Safety check: never delete a package that historical bills still reference
+  const { count } = await supabase
+    .from("bills")
+    .select("id", { count: "exact", head: true })
+    .eq("package_id", package_id);
+
+  if (count && count > 0) {
+    redirect(
+      `/packages/${package_id}/edit?error=${encodeURIComponent(
+        `Cannot delete — ${count} bill(s) reference this package. Deactivate it instead.`
+      )}`
+    );
+  }
+
+  const { error } = await supabase.from("packages").delete().eq("id", package_id);
+
+  if (error) {
+    redirect(`/packages/${package_id}/edit?error=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath("/packages");
+  redirect("/packages?success=Package deleted");
 }

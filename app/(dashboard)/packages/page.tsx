@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import PackageRow from "./package-row";
 
 export default async function PackagesPage({
   searchParams,
@@ -12,7 +13,7 @@ export default async function PackagesPage({
 
   const { data: packages } = await supabase
     .from("packages")
-    .select("id, name, cycle_type, data_gb, amount, is_active")
+    .select("id, name, cycle_type, data_gb, validity_days, amount, is_active")
     .order("name");
 
   return (
@@ -56,6 +57,9 @@ export default async function PackagesPage({
                   Data
                 </th>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
+                  Validity
+                </th>
+                <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
                   Price
                 </th>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
@@ -65,23 +69,18 @@ export default async function PackagesPage({
             </thead>
             <tbody>
               {packages?.map((p) => (
-                <tr
-                  key={p.id}
-                  className="border-t border-border hover:bg-bg transition"
-                >
+                <PackageRow key={p.id} href={`/packages/${p.id}/edit`}>
                   <td className="px-5 py-3.5 font-semibold text-forest">
-                    <Link
-                      href={`/packages/${p.id}/edit`}
-                      className="hover:underline"
-                    >
-                      {p.name}
-                    </Link>
+                    {p.name}
                   </td>
                   <td className="px-5 py-3.5 text-text-muted capitalize">
                     {p.cycle_type.replace("_", " ")}
                   </td>
                   <td className="px-5 py-3.5 text-text-muted">
                     {p.data_gb ? `${p.data_gb} GB` : "—"}
+                  </td>
+                  <td className="px-5 py-3.5 text-text-muted">
+                    {p.validity_days ? `${p.validity_days} days` : "—"}
                   </td>
                   <td className="px-5 py-3.5 text-text">{p.amount} AFN</td>
                   <td className="px-5 py-3.5">
@@ -95,7 +94,7 @@ export default async function PackagesPage({
                       {p.is_active ? "Active" : "Inactive"}
                     </span>
                   </td>
-                </tr>
+                </PackageRow>
               ))}
             </tbody>
           </table>

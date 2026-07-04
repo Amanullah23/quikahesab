@@ -34,11 +34,11 @@ const { data: customer } = await supabase
     <div>
       <div className="flex items-center gap-3 mb-6">
   <Link
-    href="/customers"
-    className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-text-muted hover:bg-bg transition"
-  >
-    <ArrowLeft size={16} />
-  </Link>
+  href={`/customers/${id}`}
+  className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-text-muted hover:bg-bg transition"
+>
+  <ArrowLeft size={16} />
+</Link>
   <h1 className="font-display text-2xl font-bold text-text">Edit Customer</h1>
 </div>
 

@@ -85,7 +85,7 @@ export default function BillForm({
 
       <button
         type="submit"
-        className="w-full bg-forest text-white py-3 rounded-full font-medium hover:opacity-90 active:scale-[0.98] transition duration-150"
+        className="w-full bg-forest text-white py-3 rounded-full font-medium hover:opacity-90 active:scale-[0.98] transition duration-150 cursor-pointer"
       >
         Create Bill
       </button>
