@@ -1,6 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Search, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Search,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+} from "lucide-react";
+import BillRow from "./bill-row";
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-bg text-text-muted",
@@ -11,24 +20,47 @@ const STATUS_STYLES: Record<string, string> = {
 
 const PAGE_SIZE = 20;
 
+// Whitelist of columns that can actually be sorted, mapped to their real DB column names.
+// A whitelist here matters: it stops a crafted URL from sorting by an arbitrary/unsafe column.
+const SORTABLE_COLUMNS: Record<string, string> = {
+  bill_number: "bill_number",
+  status: "status",
+  month: "month_label",
+  amount: "amount_due",
+};
+
 export default async function BillsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; q?: string; page?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    q?: string;
+    page?: string;
+    sort?: string;
+    dir?: string;
+  }>;
 }) {
-  const { status, q, page: pageParam } = await searchParams;
+  const { status, q, page: pageParam, sort, dir } = await searchParams;
   const page = Math.max(1, Number(pageParam) || 1);
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
+
+  // Default sort: bill_number descending (matches original behavior if nothing is chosen)
+  const sortKey = sort && SORTABLE_COLUMNS[sort] ? sort : "bill_number";
+  const sortColumn = SORTABLE_COLUMNS[sortKey];
+  const sortAsc = dir === "asc";
 
   const supabase = await createClient();
 
   let query = supabase
     .from("bills")
-    .select("id, bill_number, amount_due, status, month_label, customers(full_name)", {
-      count: "exact",
-    })
-    .order("bill_number", { ascending: false })
+    .select(
+      "id, bill_number, amount_due, status, month_label, customers(full_name)",
+      {
+        count: "exact",
+      },
+    )
+    .order(sortColumn, { ascending: sortAsc })
     .range(from, to);
 
   if (status) query = query.eq("status", status);
@@ -42,8 +74,33 @@ export default async function BillsPage({
     const params = new URLSearchParams();
     if (status) params.set("status", status);
     if (q) params.set("q", q);
+    if (sort) params.set("sort", sort);
+    if (dir) params.set("dir", dir);
     params.set("page", String(p));
     return `/bills?${params.toString()}`;
+  }
+
+  // Clicking a header: same column → flip direction; different column → start ascending, reset to page 1
+  function sortHref(key: string) {
+    const params = new URLSearchParams();
+    if (status) params.set("status", status);
+    if (q) params.set("q", q);
+    params.set("sort", key);
+    const nextDir = sortKey === key && sortAsc ? "desc" : "asc";
+    params.set("dir", nextDir);
+    // no page param → resets to page 1
+    return `/bills?${params.toString()}`;
+  }
+
+  function SortIcon({ column }: { column: string }) {
+    if (sortKey !== column) {
+      return <ArrowUpDown size={12} className="text-text-muted/50" />;
+    }
+    return sortAsc ? (
+      <ArrowUp size={12} className="text-forest" />
+    ) : (
+      <ArrowDown size={12} className="text-forest" />
+    );
   }
 
   const tabs = [
@@ -87,7 +144,7 @@ export default async function BillsPage({
       </form>
 
       {/* Status tabs */}
-      <div className="flex gap-2 mb-6 overflow-x-auto">
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-3 -mb-1">
         {tabs.map((tab) => (
           <Link
             key={tab.value}
@@ -110,36 +167,57 @@ export default async function BillsPage({
             <thead className="bg-bg">
               <tr>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
-                  Bill #
+                  <Link
+                    href={sortHref("bill_number")}
+                    className="flex items-center gap-1.5 hover:text-text transition"
+                  >
+                    Bill # <SortIcon column="bill_number" />
+                  </Link>
                 </th>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
                   Customer
                 </th>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
-                  Month
+                  <Link
+                    href={sortHref("month")}
+                    className="flex items-center gap-1.5 hover:text-text transition"
+                  >
+                    Month <SortIcon column="month" />
+                  </Link>
                 </th>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
-                  Amount
+                  <Link
+                    href={sortHref("amount")}
+                    className="flex items-center gap-1.5 hover:text-text transition"
+                  >
+                    Amount <SortIcon column="amount" />
+                  </Link>
                 </th>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
-                  Status
+                  <Link
+                    href={sortHref("status")}
+                    className="flex items-center gap-1.5 hover:text-text transition"
+                  >
+                    Status <SortIcon column="status" />
+                  </Link>
                 </th>
               </tr>
             </thead>
             <tbody>
               {bills?.map((bill: any) => (
-                <tr
-                  key={bill.id}
-                  className="border-t border-border hover:bg-bg transition"
-                >
+                <BillRow key={bill.id} href={`/bills/${bill.id}`}>
                   <td className="px-5 py-3.5 font-semibold text-forest">
-                    <Link href={`/bills/${bill.id}`} className="hover:underline">
-                      {bill.bill_number}
-                    </Link>
+                    {bill.bill_number}
                   </td>
-                  <td className="px-5 py-3.5 text-text">{bill.customers?.full_name}</td>
-                  <td className="px-5 py-3.5 text-text-muted">{bill.month_label}</td>
-                  <td className="px-5 py-3.5 text-text">{bill.amount_due} AFN</td>
+                  <td className="px-5 py-3.5 text-text">
+                    {bill.customers?.full_name}
+                  </td>
+                  <td className="px-5 py-3.5 text-text-muted">
+                    {bill.month_label}
+                  </td>
+                  <td className="px-5 py-3.5 text-text">
+                    {bill.amount_due} AFN
+                  </td>
                   <td className="px-5 py-3.5">
                     <span
                       className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${STATUS_STYLES[bill.status]}`}
@@ -147,17 +225,21 @@ export default async function BillsPage({
                       {bill.status}
                     </span>
                   </td>
-                </tr>
+                </BillRow>
               ))}
             </tbody>
           </table>
         </div>
 
         {bills?.length === 0 && (
-          <p className="text-center text-text-muted py-12 text-sm">No bills found</p>
+          <p className="text-center text-text-muted py-12 text-sm">
+            No bills found
+          </p>
         )}
         {error && (
-          <p className="text-center text-badge-red-text py-12 text-sm">{error.message}</p>
+          <p className="text-center text-badge-red-text py-12 text-sm">
+            {error.message}
+          </p>
         )}
       </div>
 

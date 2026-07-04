@@ -1,20 +1,38 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Plus, Upload, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Upload, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import CustomerSearch from "./customer-search";
 import CustomerRow from "./customer-row";
 
 const PAGE_SIZE = 20;
 
+// Whitelist: only these keys can be sorted, mapped to real DB columns.
+// Prevents a crafted URL from sorting by an arbitrary/unsafe column.
+const SORTABLE_COLUMNS: Record<string, string> = {
+  id: "customer_number",
+  name: "full_name",
+  status: "is_active",
+};
+
 export default async function CustomersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; success?: string; page?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    success?: string;
+    page?: string;
+    sort?: string;
+    dir?: string;
+  }>;
 }) {
-  const { q, success, page: pageParam } = await searchParams;
+  const { q, success, page: pageParam, sort, dir } = await searchParams;
   const page = Math.max(1, Number(pageParam) || 1);
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
+
+  const sortKey = sort && SORTABLE_COLUMNS[sort] ? sort : "id";
+  const sortColumn = SORTABLE_COLUMNS[sortKey];
+  const sortAsc = dir === "desc" ? false : true; // default ascending unless explicitly desc
 
   const supabase = await createClient();
 
@@ -24,7 +42,7 @@ export default async function CustomersPage({
       "id, customer_number, full_name, whatsapp_number, whatsapp_valid, is_active, packages(name)",
       { count: "exact" }
     )
-    .order("customer_number")
+    .order(sortColumn, { ascending: sortAsc })
     .range(from, to);
 
   if (q) query = query.ilike("full_name", `%${q}%`);
@@ -36,8 +54,31 @@ export default async function CustomersPage({
   function pageHref(p: number) {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
+    if (sort) params.set("sort", sort);
+    if (dir) params.set("dir", dir);
     params.set("page", String(p));
     return `/customers?${params.toString()}`;
+  }
+
+  function sortHref(key: string) {
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    params.set("sort", key);
+    const nextDir = sortKey === key && sortAsc ? "desc" : "asc";
+    params.set("dir", nextDir);
+    // no page param → resets to page 1
+    return `/customers?${params.toString()}`;
+  }
+
+  function SortIcon({ column }: { column: string }) {
+    if (sortKey !== column) {
+      return <ArrowUpDown size={12} className="text-text-muted/50" />;
+    }
+    return sortAsc ? (
+      <ArrowUp size={12} className="text-forest" />
+    ) : (
+      <ArrowDown size={12} className="text-forest" />
+    );
   }
 
   return (
@@ -83,10 +124,14 @@ export default async function CustomersPage({
             <thead className="bg-bg">
               <tr>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
-                  ID
+                  <Link href={sortHref("id")} className="flex items-center gap-1.5 hover:text-text transition">
+                    ID <SortIcon column="id" />
+                  </Link>
                 </th>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
-                  Full Name
+                  <Link href={sortHref("name")} className="flex items-center gap-1.5 hover:text-text transition">
+                    Name <SortIcon column="name" />
+                  </Link>
                 </th>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
                   WhatsApp
@@ -95,7 +140,9 @@ export default async function CustomersPage({
                   Package
                 </th>
                 <th className="text-left px-5 py-3.5 font-medium text-text-muted text-xs uppercase tracking-wide">
-                  Status
+                  <Link href={sortHref("status")} className="flex items-center gap-1.5 hover:text-text transition">
+                    Status <SortIcon column="status" />
+                  </Link>
                 </th>
               </tr>
             </thead>
