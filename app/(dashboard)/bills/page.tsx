@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import BillSearch from "./bill-search";
 import {
   Search,
   Plus,
@@ -52,19 +53,28 @@ export default async function BillsPage({
 
   const supabase = await createClient();
 
-  let query = supabase
-    .from("bills")
-    .select(
-      "id, bill_number, amount_due, status, month_label, customers(full_name)",
-      {
-        count: "exact",
-      },
-    )
-    .order(sortColumn, { ascending: sortAsc })
-    .range(from, to);
+const isNumericSearch = q && /^\d+$/.test(q.trim());
 
-  if (status) query = query.eq("status", status);
-  if (q) query = query.eq("bill_number", Number(q));
+let query = supabase
+  .from("bills")
+  .select(
+    isNumericSearch
+      ? "id, bill_number, amount_due, status, month_label, customers(full_name)"
+      : "id, bill_number, amount_due, status, month_label, customers!inner(full_name)",
+    { count: "exact" }
+  )
+  .order(sortColumn, { ascending: sortAsc })
+  .range(from, to);
+
+if (status) query = query.eq("status", status);
+
+if (q) {
+  if (isNumericSearch) {
+    query = query.eq("bill_number", Number(q.trim()));
+  } else {
+    query = query.ilike("customers.full_name", `%${q.trim()}%`);
+  }
+}
 
   const { data: bills, error, count } = await query;
 
@@ -130,18 +140,9 @@ export default async function BillsPage({
       </div>
 
       {/* Search */}
-      <form className="mb-5" method="get">
-        <div className="flex items-center gap-2 bg-card border border-border rounded-full px-4 py-2.5 max-w-xs">
-          <Search size={16} className="text-text-muted shrink-0" />
-          <input
-            type="text"
-            name="q"
-            defaultValue={q}
-            placeholder="Search bill number..."
-            className="bg-transparent text-sm text-text placeholder:text-text-muted focus:outline-none w-full"
-          />
-        </div>
-      </form>
+      <div className="mb-5">
+        <BillSearch />
+      </div>
 
       {/* Status tabs */}
       <div className="flex gap-2 mb-6 overflow-x-auto pb-3 -mb-1">
